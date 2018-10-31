@@ -28,6 +28,12 @@ using System.IO.Compression;
 using System.Globalization;
 
 
+//From here is the Tiled-XNA repository from github, it required several changes to draw to the interface and not the spritebatch
+//I have also created a list of tile textures which is created for each layer at the moment on first update, it unfortunately does this
+//for each layer, i will change this so that the tileset stores the individual images instead of the layer
+//
+//Actual map widget starts on line 1112
+
 namespace Squared.Tiled
 {
     public class Isometric
