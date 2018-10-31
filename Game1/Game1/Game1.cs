@@ -23,11 +23,10 @@ namespace Game1
     {
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
-        MapWidget map;
 
+        MapWidget map;
         Vector2 viewportPosition;
 
-        int tilepixel;
         IUIManager uiManager;
 
         public enum GameState
@@ -35,6 +34,7 @@ namespace Game1
             MainMenu,
             Playing
         }
+
         private GameState state = GameState.MainMenu;
 
         public GameState State
@@ -46,8 +46,6 @@ namespace Game1
                 //switchstate
             }
         }
-
-        Texture2D pixel;
 
         //Screens
         MainMenu main;
@@ -71,15 +69,16 @@ namespace Game1
         /// </summary>
         protected override void Initialize()
         {
-            // TODO: Add your initialization logic here
-            uiManager = UIManagerComponent.CreateAndInit(this, new InputManager(this), "Content").Manager;
-            
+            //setup Steropes interface
+            uiManager = UIManagerComponent.CreateAndInit(this, new InputManager(this), "Content").Manager;            
             var styleSystem = uiManager.UIStyle;
             var styles = styleSystem.LoadStyles("Content/UI/Metro/style.xml", "UI/Metro", GraphicsDevice);
             styleSystem.StyleResolver.StyleRules.AddRange(styles);
 
+            //my UI panels
             main = new MainMenu(styleSystem, this);
             play = new Playing(styleSystem, this, graphics);
+
             base.Initialize();
         }
 
@@ -92,13 +91,16 @@ namespace Game1
             // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
+            //init mapwidget in playing menu
             play.mapWidget.Init("Map2.tmx", this, graphics, "3objects","player");
 
+            //link mapwidget in playing menu to map variable in here
             map = play.mapWidget;
+
+            //access objects and add texture
             map.CurrentMap.ObjectGroups["3objects"].Objects["player"].Texture = Content.Load<Texture2D>("hero");
             map.CurrentMap.ObjectGroups["3objects"].Objects["coin_1"].Texture = Content.Load<Texture2D>("coin");
 
-            // TODO: use this.Content to load your game content here
         }
 
         /// <summary>
@@ -123,33 +125,17 @@ namespace Game1
             switch (state)
             {
                 case GameState.MainMenu:
-                    UpdateMainMenu();
+                    uiManager.Root.Content = main;
                     break;
                 case GameState.Playing:
-                    UpdatePlaying();
+                    uiManager.Root.Content = play;
+                    viewportPosition = new Vector2(map.CurrentMap.ObjectGroups["3objects"].Objects["player"].X - (graphics.PreferredBackBufferWidth / 2), map.CurrentMap.ObjectGroups["3objects"].Objects["player"].Y - (graphics.PreferredBackBufferHeight / 2));
                     break;
             }
 
             base.Update(gameTime);
         }
 
-        public void UpdateMainMenu()
-        {
-            if (State == GameState.MainMenu)
-            {
-                uiManager.Root.Content = main;
-            }
-        }
-
-        public void UpdatePlaying()
-        { 
-            if (State == GameState.Playing)
-            {
-                uiManager.Root.Content = play;
-            }
-
-            viewportPosition = new Vector2(map.CurrentMap.ObjectGroups["3objects"].Objects["player"].X - (graphics.PreferredBackBufferWidth / 2), map.CurrentMap.ObjectGroups["3objects"].Objects["player"].Y - (graphics.PreferredBackBufferHeight / 2));
-        }
 
         /// <summary>
         /// This is called when the game should draw itself.
