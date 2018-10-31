@@ -32,7 +32,7 @@ using System.Globalization;
 //I have also created a list of tile textures which is created for each layer at the moment on first update, it unfortunately does this
 //for each layer, i will change this so that the tileset stores the individual images instead of the layer
 //
-//Actual map widget starts on line 1112
+//Actual map widget starts on line 1108
 
 namespace Squared.Tiled
 {
@@ -529,10 +529,7 @@ namespace Squared.Tiled
 
                             if ((index >= 0) && (index < _TileInfoCache.Length))
                             {
-                                info = _TileInfoCache[index];
-
-                                //batch.Draw(info.Texture, new Rectangle(ox, oy, this.Width, this.Height), info.Rectangle, Color.White * this.Opacity,0f);
-                                d.Draw(new UITexture(tiles[index]), destPos, info.Rectangle,
+                                d.Draw(new UITexture(tiles[index]), destPos, null,
                                            Color.White * this.Opacity, 0f, new Vector2(tileWidth / 2f, tileHeight / 2f),
                                            1f, 0f, 0);
                             }
@@ -647,8 +644,6 @@ namespace Squared.Tiled
                     int index = Tiles[i] - 1;
                     if ((index >= 0) && (index < _TileInfoCache.Length))
                     {
-                        info = _TileInfoCache[index];
-
                         d.Draw(new UITexture(tiles[index]), destPos - viewPos, null,
                                    Color.White * this.Opacity, rotation, new Vector2(tileWidth / 2f, tileHeight / 2f),
                                    1f, flipEffect, 0);
@@ -913,10 +908,8 @@ namespace Squared.Tiled
                 {
                     int x = (int)(this.X + offset.X - viewportPosition.X);
                     int y = (int)(this.Y + offset.Y - viewportPosition.Y);
-                    //Console.WriteLine("draw object");
                     d.Draw(new UITexture(this.Texture), new Rectangle(x, y, this.Width, this.Height), new Rectangle(0, 0, _Texture.Width, _Texture.Height),
                                   Color.White, 0f, new Vector2(this.Width/2, this.Height/2), SpriteEffects.None, 0);
-                    //d.Draw(new UITexture(_Texture), new Rectangle(x, y, this.Width, this.Height), null, Color.White * opacity, 0f, Vector2.Zero, SpriteEffects.None, 0f);
                 }
         }
     }
