@@ -1,6 +1,18 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using System.IO;
+using System;
+using Squared.Tiled;
+using System.Collections.Generic;
+using Steropes.UI;
+using Steropes.UI.Components;
+using Steropes.UI.Input;
+using Steropes.UI.Styles;
+using Steropes.UI.Util;
+using Steropes.UI.Widgets;
+using Steropes.UI.Widgets.Container;
+using Steropes.UI.Widgets.TextWidgets;
 
 namespace Game1
 {
@@ -11,11 +23,44 @@ namespace Game1
     {
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
+        MapWidget map;
+
+        Vector2 viewportPosition;
+
+        int tilepixel;
+        IUIManager uiManager;
+
+        public enum GameState
+        {
+            MainMenu,
+            Playing
+        }
+        private GameState state = GameState.MainMenu;
+
+        public GameState State
+        {
+            get { return state; }
+            set
+            {
+                state = value;
+                //switchstate
+            }
+        }
+
+        Texture2D pixel;
+
+        //Screens
+        MainMenu main;
+        Playing play;
 
         public Game1()
         {
             graphics = new GraphicsDeviceManager(this);
+            graphics.PreferredBackBufferWidth = 1024;
+            graphics.PreferredBackBufferHeight = 600;
+            graphics.ApplyChanges();
             Content.RootDirectory = "Content";
+            IsMouseVisible = true;
         }
 
         /// <summary>
@@ -27,7 +72,14 @@ namespace Game1
         protected override void Initialize()
         {
             // TODO: Add your initialization logic here
+            uiManager = UIManagerComponent.CreateAndInit(this, new InputManager(this), "Content").Manager;
+            
+            var styleSystem = uiManager.UIStyle;
+            var styles = styleSystem.LoadStyles("Content/UI/Metro/style.xml", "UI/Metro", GraphicsDevice);
+            styleSystem.StyleResolver.StyleRules.AddRange(styles);
 
+            main = new MainMenu(styleSystem, this);
+            play = new Playing(styleSystem, this, graphics);
             base.Initialize();
         }
 
@@ -39,6 +91,12 @@ namespace Game1
         {
             // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
+
+            play.mapWidget.Init("Map2.tmx", this, graphics, "3objects","player");
+
+            map = play.mapWidget;
+            map.CurrentMap.ObjectGroups["3objects"].Objects["player"].Texture = Content.Load<Texture2D>("hero");
+            map.CurrentMap.ObjectGroups["3objects"].Objects["coin_1"].Texture = Content.Load<Texture2D>("coin");
 
             // TODO: use this.Content to load your game content here
         }
@@ -62,9 +120,35 @@ namespace Game1
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
 
-            // TODO: Add your update logic here
+            switch (state)
+            {
+                case GameState.MainMenu:
+                    UpdateMainMenu();
+                    break;
+                case GameState.Playing:
+                    UpdatePlaying();
+                    break;
+            }
 
             base.Update(gameTime);
+        }
+
+        public void UpdateMainMenu()
+        {
+            if (State == GameState.MainMenu)
+            {
+                uiManager.Root.Content = main;
+            }
+        }
+
+        public void UpdatePlaying()
+        { 
+            if (State == GameState.Playing)
+            {
+                uiManager.Root.Content = play;
+            }
+
+            viewportPosition = new Vector2(map.CurrentMap.ObjectGroups["3objects"].Objects["player"].X - (graphics.PreferredBackBufferWidth / 2), map.CurrentMap.ObjectGroups["3objects"].Objects["player"].Y - (graphics.PreferredBackBufferHeight / 2));
         }
 
         /// <summary>
@@ -79,5 +163,6 @@ namespace Game1
 
             base.Draw(gameTime);
         }
+    
     }
 }
