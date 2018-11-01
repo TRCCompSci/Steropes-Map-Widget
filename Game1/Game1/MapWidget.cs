@@ -74,6 +74,8 @@ namespace Squared.Tiled
         {
         }
 
+        public Texture2D[] tiles = null;
+
         public string Name;
         public int FirstTileID;
         public int TileWidth;
@@ -212,7 +214,7 @@ namespace Squared.Tiled
         public int[] Tiles;
         public byte[] FlipAndRotate;
         private TileInfo[] _TileInfoCache = null;
-        private Texture2D[] tiles = null;
+        //private Texture2D[] tiles = null;
 
 
         internal static Layer Load(XmlReader reader)
@@ -493,14 +495,20 @@ namespace Squared.Tiled
             if (_TileInfoCache == null)
                 BuildTileInfoCache(tilesets);
 
-            if (tiles == null)
+            foreach (Tileset tileset in tilesets)
             {
-                tiles = new Texture2D[_TileInfoCache.Length];
-                for (int k = 0; k < _TileInfoCache.Length; k++)
+                if (tileset.tiles == null)
                 {
-                    Texture2D test = new Texture2D(d.GraphicsDevice, tileWidth, tileHeight);
-                    test = GetTileTexture(k + 1, tilesets[0], test);
-                    tiles[k] = test;
+                    Texture2D[] tiles = new Texture2D[_TileInfoCache.Length];
+                    for (int k = 0; k < _TileInfoCache.Length; k++)
+                    {
+                        Texture2D test = new Texture2D(d.GraphicsDevice, tileWidth, tileHeight);
+                        test = GetTileTexture(k + 1, tileset, test);
+                        tiles[k] = test;
+                    }
+
+                    tileset.tiles = tiles;
+                    Console.WriteLine("tiles added");
                 }
             }
 
@@ -529,7 +537,7 @@ namespace Squared.Tiled
 
                             if ((index >= 0) && (index < _TileInfoCache.Length))
                             {
-                                d.Draw(new UITexture(tiles[index]), destPos, null,
+                                d.Draw(new UITexture(tilesets[0].tiles[index]), destPos, null,
                                            Color.White * this.Opacity, 0f, new Vector2(tileWidth / 2f, tileHeight / 2f),
                                            1f, 0f, 0);
                             }
@@ -581,14 +589,20 @@ namespace Squared.Tiled
             if (_TileInfoCache == null)
                 BuildTileInfoCache(tilesets);
 
-            if (tiles == null)
+            foreach(Tileset tileset in tilesets)
             {
-                tiles = new Texture2D[_TileInfoCache.Length];
-                for (int k = 0; k < _TileInfoCache.Length; k++)
+                if (tileset.tiles == null)
                 {
-                    Texture2D test = new Texture2D(d.GraphicsDevice, tileWidth, tileHeight);
-                    test = GetTileTexture(k + 1, tilesets[0], test);
-                    tiles[k] = test;
+                    Texture2D[] tiles = new Texture2D[_TileInfoCache.Length];
+                    for (int k = 0; k < _TileInfoCache.Length; k++)
+                    {
+                        Texture2D test = new Texture2D(d.GraphicsDevice, tileWidth, tileHeight);
+                        test = GetTileTexture(k + 1, tileset, test);
+                        tiles[k] = test;
+                    }
+
+                    tileset.tiles = tiles;
+                    Console.WriteLine("tiles added");
                 }
             }
 
@@ -644,7 +658,7 @@ namespace Squared.Tiled
                     int index = Tiles[i] - 1;
                     if ((index >= 0) && (index < _TileInfoCache.Length))
                     {
-                        d.Draw(new UITexture(tiles[index]), destPos - viewPos, null,
+                        d.Draw(new UITexture(tilesets[0].tiles[index]), destPos - viewPos, null,
                                    Color.White * this.Opacity, rotation, new Vector2(tileWidth / 2f, tileHeight / 2f),
                                    1f, flipEffect, 0);
                     }
