@@ -1141,10 +1141,6 @@ namespace Game1
         }
 
         private Vector2 viewportPosition;
-        public Vector2 ViewPort
-        {
-            get { return viewportPosition; }
-        }
 
         private Game1 parent;
         private GraphicsDeviceManager g;
