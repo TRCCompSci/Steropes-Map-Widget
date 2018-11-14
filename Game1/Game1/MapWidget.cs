@@ -1107,10 +1107,13 @@ namespace Squared.Tiled
             {
                 if (layer.Value == true)
                 {
-                    if (this.Orientation == "isometric")
-                        Layers[layer.Key].DrawIso(drawingService, Tilesets.Values, rectangle, viewportPosition, TileWidth, TileHeight);
-                    else
-                        Layers[layer.Key].Draw(drawingService, Tilesets.Values, rectangle, viewportPosition, TileWidth, TileHeight);
+                    if (Layers[layer.Key].Opacity != 0)
+                    {
+                        if (this.Orientation == "isometric")
+                            Layers[layer.Key].DrawIso(drawingService, Tilesets.Values, rectangle, viewportPosition, TileWidth, TileHeight);
+                        else
+                            Layers[layer.Key].Draw(drawingService, Tilesets.Values, rectangle, viewportPosition, TileWidth, TileHeight);
+                    }
                 }
                 else
                     ObjectGroups[layer.Key].Draw(this, drawingService, rectangle, viewportPosition, TileWidth, TileHeight);
