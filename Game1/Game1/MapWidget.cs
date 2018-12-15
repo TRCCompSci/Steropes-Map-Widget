@@ -547,7 +547,7 @@ namespace Squared.Tiled
             }
         }
 
-        public void Draw(IBatchedDrawingService d, IList<Tileset> tilesets, Rectangle rectangle, Vector2 viewportPosition, int tileWidth, int tileHeight)
+        public void Draw(IBatchedDrawingService d, IList<Tileset> tilesets, Rectangle rectangle, Vector2 viewportPosition, int tileWidth, int tileHeight,float scale)
         {
             int i = 0;
             Vector2 destPos = new Vector2(rectangle.Left, rectangle.Top);
@@ -607,12 +607,12 @@ namespace Squared.Tiled
             }
 
             // We're drawing at the center of the tile, so adjust our y offset
-            destPos.Y += tileHeight / 2f;
+            destPos.Y += (tileHeight) / 2f;
 
             for (int y = minY; y <= maxY; y++)
             {
                 // We're drawing at the center of the tile, so adjust the x offset
-                destPos.X = rectangle.Left + tileWidth / 2f;
+                destPos.X = rectangle.Left + (tileWidth)/ 2f;
 
                 for (int x = minX; x <= maxX; x++)
                 {
@@ -656,17 +656,19 @@ namespace Squared.Tiled
                     }
 
                     int index = Tiles[i] - 1;
+                    float test = (scale - 1) / 2;
+                    Vector2 adj = new Vector2(rectangle.Width * test, rectangle.Height * test);
                     if ((index >= 0) && (index < _TileInfoCache.Length))
                     {
-                        d.Draw(new UITexture(tilesets[0].tiles[index]), destPos - viewPos, null,
+                        d.Draw(new UITexture(tilesets[0].tiles[index]), destPos - viewPos -adj, null,
                                    Color.White * this.Opacity, rotation, new Vector2(tileWidth / 2f, tileHeight / 2f),
-                                   1f, flipEffect, 0);
+                                   scale, flipEffect, 0);
                     }
 
-                    destPos.X += tileWidth;
+                    destPos.X += (tileWidth*scale);
                 }
 
-                destPos.Y += tileHeight;
+                destPos.Y += (tileHeight*scale);
             }
 
         }
@@ -767,16 +769,13 @@ namespace Squared.Tiled
             return result;
         }
 
-        public void Draw(Map result, IBatchedDrawingService d, Rectangle rectangle, Vector2 viewportPosition, int tilewidth, int tileheight)
+        public void Draw(Map result, IBatchedDrawingService d, Rectangle rectangle, Vector2 viewportPosition, int tilewidth, int tileheight,float scale)
         {
             foreach (var objects in Objects.Values)
             {
                 if (objects.Texture != null)
                 {
-                    if (result.Orientation == "isometric")
-                        objects.DrawIso(d, rectangle, new Vector2(this.X * result.TileWidth, this.Y * result.TileHeight), viewportPosition, this.Opacity, tilewidth, tileheight);
-                    else
-                        objects.Draw(d, rectangle, new Vector2(this.X * result.TileWidth, this.Y * result.TileHeight), viewportPosition, this.Opacity);
+                        objects.Draw(d, rectangle, new Vector2(this.X * (result.TileWidth), this.Y * result.TileHeight), viewportPosition, this.Opacity,scale);
                 }
             }
         }
@@ -897,20 +896,7 @@ namespace Squared.Tiled
             return result;
         }
 
-        public void DrawIso(IBatchedDrawingService d, Rectangle rectangle, Vector2 offset, Vector2 viewportPosition, float opacity, int tilewidth, int tileheight)
-        {
-            SpriteBatch batch = new SpriteBatch(d.GraphicsDevice);
-            Vector2 destPos = new Vector2((int)this.X, (int)this.Y);
-            destPos -= viewportPosition;
-            destPos = Isometric.TwoDToIso(new Vector2((int)destPos.X, (int)destPos.Y));
-            destPos.X += (int)(rectangle.Width) / 2;
-            destPos.Y += (int)(rectangle.Height) / 2;
-
-            if (destPos.X > 0 && destPos.X < (rectangle.Width - tilewidth) && destPos.Y > 0 && destPos.Y < (rectangle.Height - tileheight))
-                d.Draw(new UITexture(_Texture), new Rectangle((int)destPos.X, (int)destPos.Y, this.Width, this.Height), new Rectangle(0, 0, _Texture.Width, _Texture.Height), Color.White * opacity, 0f, Vector2.Zero, SpriteEffects.None, 0f);
-        }
-
-        public void Draw(IBatchedDrawingService d, Rectangle rectangle, Vector2 offset, Vector2 viewportPosition, float opacity)
+        public void Draw(IBatchedDrawingService d, Rectangle rectangle, Vector2 offset, Vector2 viewportPosition, float opacity, float scale)
         {
             int minX = (int)Math.Floor(viewportPosition.X);
             int minY = (int)Math.Floor(viewportPosition.Y);
@@ -920,10 +906,16 @@ namespace Squared.Tiled
             if (this.X + offset.X + this.Width > minX && this.X + offset.X < maxX)
                 if (this.Y + offset.Y + this.Height > minY && this.Y + offset.Y < maxY)
                 {
-                    int x = (int)(this.X + offset.X - viewportPosition.X);
-                    int y = (int)(this.Y + offset.Y - viewportPosition.Y);
-                    d.Draw(new UITexture(this.Texture), new Rectangle(x, y, this.Width, this.Height), new Rectangle(0, 0, _Texture.Width, _Texture.Height),
-                                  Color.White, 0f, new Vector2(this.Width/2, this.Height/2), SpriteEffects.None, 0);
+                    float test = (scale - 1) / 2;
+                    int x = (int)(this.X + offset.X);
+                    int y = (int)(this.Y + offset.Y);
+                    float fx = (x*scale) - (viewportPosition.X*scale)-(rectangle.Width*test);
+                    float fy = (y*scale) - (viewportPosition.Y*scale)-(rectangle.Height*test);
+                    float fw = this.Width * scale;
+                    float fh = this.Height * scale;
+                    Console.WriteLine(new Vector2(x, y) + " " + new Vector2(fx, fy)+" " + test);
+                    d.Draw(new UITexture(this.Texture), new Rectangle((int)fx, (int)fy, (int)fw, (int)fh), new Rectangle(0, 0, _Texture.Width, _Texture.Height),
+                                  Color.White, 0f, new Vector2(fw/2, fh/2), SpriteEffects.None, 0);
                 }
         }
     }
@@ -939,6 +931,7 @@ namespace Squared.Tiled
         public SortedList<string, bool> Combined;
         public int Width, Height;
         public int TileWidth, TileHeight;
+        public float scale =1f;
 
         public string Orientation, RenderOrder;
 
@@ -1109,14 +1102,11 @@ namespace Squared.Tiled
                 {
                     if (Layers[layer.Key].Opacity != 0)
                     {
-                        if (this.Orientation == "isometric")
-                            Layers[layer.Key].DrawIso(drawingService, Tilesets.Values, rectangle, viewportPosition, TileWidth, TileHeight);
-                        else
-                            Layers[layer.Key].Draw(drawingService, Tilesets.Values, rectangle, viewportPosition, TileWidth, TileHeight);
+                            Layers[layer.Key].Draw(drawingService, Tilesets.Values, rectangle, viewportPosition, TileWidth, TileHeight,scale);
                     }
                 }
                 else
-                    ObjectGroups[layer.Key].Draw(this, drawingService, rectangle, viewportPosition, TileWidth, TileHeight);
+                    ObjectGroups[layer.Key].Draw(this, drawingService, rectangle, viewportPosition, TileWidth, TileHeight,scale);
             }
         }
     }
@@ -1168,7 +1158,7 @@ namespace Game1
 
         protected override void DrawWidget(IBatchedDrawingService drawingService)
         {
-            viewportPosition = new Vector2(cameraObject.X - (g.PreferredBackBufferWidth / 2), cameraObject.Y - (g.PreferredBackBufferHeight / 2));
+            viewportPosition = new Vector2(cameraObject.X - (g.PreferredBackBufferWidth / 2), cameraObject.Y- (g.PreferredBackBufferHeight / 2));
             map.Draw(drawingService, new Rectangle(0, 0, drawingService.GraphicsDevice.Viewport.Width, drawingService.GraphicsDevice.Viewport.Height), viewportPosition);
         }
 

@@ -129,7 +129,13 @@ namespace Game1
                     break;
                 case GameState.Playing:
                     uiManager.Root.Content = play;
-                    viewportPosition = new Vector2(map.CurrentMap.ObjectGroups["3objects"].Objects["player"].X - (graphics.PreferredBackBufferWidth / 2), map.CurrentMap.ObjectGroups["3objects"].Objects["player"].Y - (graphics.PreferredBackBufferHeight / 2));
+                    if (Keyboard.GetState().IsKeyDown(Keys.D))
+                        map.CurrentMap.scale = 1;
+                    else if (Keyboard.GetState().IsKeyDown(Keys.F))
+                        map.CurrentMap.scale = 2;
+                    else if (Keyboard.GetState().IsKeyDown(Keys.G))
+                        map.CurrentMap.scale = 3;
+                    viewportPosition = new Vector2((map.CurrentMap.ObjectGroups["3objects"].Objects["player"].X)- (graphics.PreferredBackBufferWidth / 2), (map.CurrentMap.ObjectGroups["3objects"].Objects["player"].Y)- (graphics.PreferredBackBufferHeight / 2));
                     break;
             }
 
