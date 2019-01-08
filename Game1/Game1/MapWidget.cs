@@ -33,7 +33,7 @@ namespace Game1
         public Squared.Tiled.Object CameraObject
         {
             get { return cameraObject; }
-            set { CameraObject = value; }
+            set { cameraObject = value; }
         }
 
         private Vector2 viewportPosition;

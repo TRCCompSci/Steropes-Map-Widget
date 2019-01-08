@@ -122,6 +122,9 @@ namespace Game1
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
 
+            int tempy = 0;
+            int tempx = 0;
+
             switch (state)
             {
                 case GameState.MainMenu:
@@ -129,12 +132,24 @@ namespace Game1
                     break;
                 case GameState.Playing:
                     uiManager.Root.Content = play;
-                    if (Keyboard.GetState().IsKeyDown(Keys.D))
+                    if (Keyboard.GetState().IsKeyDown(Keys.F))
                         map.CurrentMap.scale = 1;
-                    else if (Keyboard.GetState().IsKeyDown(Keys.F))
-                        map.CurrentMap.scale = 2;
                     else if (Keyboard.GetState().IsKeyDown(Keys.G))
+                        map.CurrentMap.scale = 2;
+                    else if (Keyboard.GetState().IsKeyDown(Keys.H))
                         map.CurrentMap.scale = 3;
+                    else if (Keyboard.GetState().IsKeyDown(Keys.A))
+                        tempx = -1;
+                    else if (Keyboard.GetState().IsKeyDown(Keys.D))
+                        tempx = 1;
+                    else if (Keyboard.GetState().IsKeyDown(Keys.W))
+                        tempy = -1;
+                    else if (Keyboard.GetState().IsKeyDown(Keys.S))
+                        tempy = 1;
+
+                    map.CurrentMap.ObjectGroups["3objects"].Objects["player"].X += tempx;
+                    map.CurrentMap.ObjectGroups["3objects"].Objects["player"].Y += tempy;
+
                     viewportPosition = new Vector2((map.CurrentMap.ObjectGroups["3objects"].Objects["player"].X)- (graphics.PreferredBackBufferWidth / 2), (map.CurrentMap.ObjectGroups["3objects"].Objects["player"].Y)- (graphics.PreferredBackBufferHeight / 2));
                     break;
             }
