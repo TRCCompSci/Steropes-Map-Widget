@@ -6,3 +6,5 @@ The MapCode.cs file is the adapted Tiled-XNA repository code. This project requi
 The example project includes a file called MainMenu.cs which includes classes for 2 panels. Each panel has a button to switch between the two. The last bit i added was map scaling, so keys D,F,G will scale the map to different sizes.
 
 To initialise the MapWidget you need to pass the name of the map to load, the Game, the graphics, the object layer of the focus object, the name of the focus object.
+
+TODO: I never noticed that zooming seems to effect the exact position of objects when the player moves. This doesn't happen when the map is at the proper scale, it is likely to be an issue with truncation of a float to an int.
